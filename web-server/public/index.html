@@ -6,23 +6,82 @@
     <title>Cliente da API</title>
   </head>
   <body>
+    <h1>Formulário para digitar qualquer coisa</h1>
+    <form id="busca">
+      <input
+        type="text"
+        id="dog"
+        name="texto"
+        placeholder="Digite algo"
+        required
+      />
+      <button type="submit" id="botao" style="cursor: pointer">
+        Buscar HTML
+      </button>
+    </form>
+
+    <form id="update">
+      <button type="submit" id="botao-update" style="cursor: pointer">
+        Atualizar página
+      </button>
+    </form>
+    <div style="margin-top: 20px">
+      <h2>Resultado</h2>
+      <iframe
+        id="resultado"
+        style="width: 100%; height: 300px; border: 1px solid #ccc"
+      ></iframe>
+    </div>
     <script>
-      // Carregar o formulário para atualização
-      // Botão para buscar o HTML
-      // Elemento exibe o HTML do servidor
-      // submit: Enviar dados para o servidor via POST
-      // Obter os valores dos campos de entrada
-      // Fazer a requisição POST para atualizar o HTML
-      // Fetch é o método que interage com a API no javascript
-      // Ele utiliza HTTP para enviar e receber dados
-      // O primeiro parâmetro do fetch é a URI do recurso
-      // Especificar o método da requisição
-      // Configurar os cabeçalhos da requisição
-      // Neste caso, estamos enviando JSON
-      // Corpo da requisição
-      //Tudo isso, da linha 41 a 60 foi usado para mandar
-      //os dados ao servidor via POST
-      // Obter o conteúdo do arquivo HTML via GET
+      const iframe = document.getElementById("resultado");
+
+      // Formulário de envio de texto
+      document.getElementById("busca").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const texto = document.getElementById("dog").value;
+
+        try {
+          const response = await fetch(
+            "http://172.17.9.149:3000/api/update-html",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                title: texto,
+                content: `Você digitou: ${texto}`,
+              }),
+            }
+          );
+          const html = await response.text();
+          iframe.srcdoc = html;
+        } catch (error) {
+          console.error(error);
+          iframe.srcdoc =
+            '<p style="color:red">Erro ao carregar HTML com texto.</p>';
+        }
+      });
+
+      // Formulário de atualização sem texto (GET) puro
+      document
+        .getElementById("update")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          try {
+            const response = await fetch(
+              "http://172.17.9.149:3000/api/get-html"
+            );
+            const html = await response.text();
+            iframe.srcdoc = html;
+          } catch (error) {
+            console.error(error);
+            iframe.srcdoc =
+              '<p style="color:red">Erro ao atualizar a página.</p>';
+          }
+        });
     </script>
   </body>
 </html>
